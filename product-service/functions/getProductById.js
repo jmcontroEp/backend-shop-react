@@ -7,32 +7,53 @@ const productTable = process.env.PRODUCT_TABLE;
 const stockTable = process.env.STOCK_TABLE;
 
 module.exports.handler = async (event) => {
+  const productId = event.pathParameters.productId;
 
-    const productId = event.pathParameters.productId;
-
-    const products = await db
+  const products = await db
     .scan({
       TableName: productTable,
     })
     .promise();
-  
-    const product = products.Items.find((p) => p.id == productId);
-  
-    if (!product) {
-      return {
-        statusCode: 404,
-        headers: {
-          'Access-Control-Allow-Origin': '*'
-        },
-        body: JSON.stringify({message: 'Product not found.'}),
-      };
-    }
-  
+
+  const stocks = await db
+    .scan({
+      TableName: stockTable,
+    })
+    .promise();
+
+  const stockMap = {};
+  stocks.Items.forEach((stock) => {
+    stockMap[stock.product_id] = stock;
+  });
+
+  const finalProducts = products.Items.map((product) => {
+    const stockInfo = stockMap[product.id] || { count: 0 };
     return {
-      statusCode: 200,
+      id: product.id,
+      title: product.title,
+      description: product.description,
+      count: stockInfo.count,
+      price: product.price,
+    };
+  });
+
+  const product = finalProducts.find((p) => p.id == productId);
+
+  if (!product) {
+    return {
+      statusCode: 404,
       headers: {
-        'Access-Control-Allow-Origin': '*'
+        "Access-Control-Allow-Origin": "*",
       },
-      body: JSON.stringify(product),
-    }
+      body: JSON.stringify({ message: "Product not found." }),
+    };
   }
+
+  return {
+    statusCode: 200,
+    headers: {
+      "Access-Control-Allow-Origin": "*",
+    },
+    body: JSON.stringify(product),
+  };
+};
