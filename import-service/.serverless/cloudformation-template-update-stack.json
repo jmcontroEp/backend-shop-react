@@ -77,6 +77,12 @@
         "LogGroupName": "/aws/lambda/import-service-t5-dev-importProductFiles"
       }
     },
+    "ImportFileParserLogGroup": {
+      "Type": "AWS::Logs::LogGroup",
+      "Properties": {
+        "LogGroupName": "/aws/lambda/import-service-t5-dev-importFileParser"
+      }
+    },
     "IamRoleLambdaExecution": {
       "Type": "AWS::IAM::Role",
       "Properties": {
@@ -176,7 +182,7 @@
           "S3Bucket": {
             "Ref": "ServerlessDeploymentBucket"
           },
-          "S3Key": "serverless/import-service-t5/dev/1703010034070-2023-12-19T18:20:34.070Z/import-service-t5.zip"
+          "S3Key": "serverless/import-service-t5/dev/1703097590690-2023-12-20T18:39:50.690Z/import-service-t5.zip"
         },
         "Handler": "functions/importProductFiles.handler",
         "Runtime": "nodejs18.x",
@@ -194,15 +200,192 @@
         "ImportProductFilesLogGroup"
       ]
     },
-    "ImportProductFilesLambdaVersionmKcZMniPlspmY3mtmlzvWAnqbmrC5ZITmxLhediY": {
+    "ImportFileParserLambdaFunction": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Ref": "ServerlessDeploymentBucket"
+          },
+          "S3Key": "serverless/import-service-t5/dev/1703097590690-2023-12-20T18:39:50.690Z/import-service-t5.zip"
+        },
+        "Handler": "functions/importFileParser.handler",
+        "Runtime": "nodejs18.x",
+        "FunctionName": "import-service-t5-dev-importFileParser",
+        "MemorySize": 1024,
+        "Timeout": 6,
+        "Role": {
+          "Fn::GetAtt": [
+            "IamRoleLambdaExecution",
+            "Arn"
+          ]
+        }
+      },
+      "DependsOn": [
+        "ImportFileParserLogGroup"
+      ]
+    },
+    "ImportProductFilesLambdaVersionekMfiydHCDHUcjkN8MJ3pLyU7bFRGKfBOcsDKD7UiQY": {
       "Type": "AWS::Lambda::Version",
       "DeletionPolicy": "Retain",
       "Properties": {
         "FunctionName": {
           "Ref": "ImportProductFilesLambdaFunction"
         },
-        "CodeSha256": "RUF+VeZvfBYWrE5Azu1/y1pIesu9Ob0Ca1R5vbTX3Ps="
+        "CodeSha256": "5d7AAMDT60eacaKLfVU/7FV4G0J8uq4+Jm7ydzL+biw="
       }
+    },
+    "ImportFileParserLambdaVersionilFUXBUHSjVvZNp89tagSZfuWZpW1qRutJWGH5EME": {
+      "Type": "AWS::Lambda::Version",
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "FunctionName": {
+          "Ref": "ImportFileParserLambdaFunction"
+        },
+        "CodeSha256": "5d7AAMDT60eacaKLfVU/7FV4G0J8uq4+Jm7ydzL+biw="
+      }
+    },
+    "ImportFileParserCustomS31": {
+      "Type": "Custom::S3",
+      "Version": 1,
+      "DependsOn": [
+        "ImportFileParserLambdaFunction",
+        "CustomDashresourceDashexistingDashs3LambdaFunction"
+      ],
+      "Properties": {
+        "ServiceToken": {
+          "Fn::GetAtt": [
+            "CustomDashresourceDashexistingDashs3LambdaFunction",
+            "Arn"
+          ]
+        },
+        "FunctionName": "import-service-t5-dev-importFileParser",
+        "BucketName": "import-service-t5",
+        "BucketConfigs": [
+          {
+            "Event": "s3:ObjectCreated:*",
+            "Rules": [
+              {
+                "Prefix": "uploaded/"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "IamRoleCustomResourcesLambdaExecution": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Service": [
+                  "lambda.amazonaws.com"
+                ]
+              },
+              "Action": [
+                "sts:AssumeRole"
+              ]
+            }
+          ]
+        },
+        "Policies": [
+          {
+            "PolicyName": {
+              "Fn::Join": [
+                "-",
+                [
+                  "dev",
+                  "import-service-t5",
+                  "custom-resources-lambda"
+                ]
+              ]
+            },
+            "PolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Resource": {
+                    "Fn::Join": [
+                      ":",
+                      [
+                        "arn",
+                        {
+                          "Ref": "AWS::Partition"
+                        },
+                        "s3",
+                        "",
+                        "",
+                        "import-service-t5"
+                      ]
+                    ]
+                  },
+                  "Action": [
+                    "s3:PutBucketNotification",
+                    "s3:GetBucketNotification"
+                  ]
+                },
+                {
+                  "Effect": "Allow",
+                  "Resource": {
+                    "Fn::Join": [
+                      ":",
+                      [
+                        "arn",
+                        {
+                          "Ref": "AWS::Partition"
+                        },
+                        "lambda",
+                        {
+                          "Ref": "AWS::Region"
+                        },
+                        {
+                          "Ref": "AWS::AccountId"
+                        },
+                        "function",
+                        "*"
+                      ]
+                    ]
+                  },
+                  "Action": [
+                    "lambda:AddPermission",
+                    "lambda:RemovePermission"
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "CustomDashresourceDashexistingDashs3LambdaFunction": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Ref": "ServerlessDeploymentBucket"
+          },
+          "S3Key": "serverless/import-service-t5/dev/1703097590690-2023-12-20T18:39:50.690Z/custom-resources.zip"
+        },
+        "FunctionName": "import-service-t5-dev-custom-resource-existing-s3",
+        "Handler": "s3/handler.handler",
+        "MemorySize": 1024,
+        "Runtime": "nodejs16.x",
+        "Timeout": 180,
+        "Role": {
+          "Fn::GetAtt": [
+            "IamRoleCustomResourcesLambdaExecution",
+            "Arn"
+          ]
+        }
+      },
+      "DependsOn": [
+        "IamRoleCustomResourcesLambdaExecution"
+      ]
     },
     "ApiGatewayRestApi": {
       "Type": "AWS::ApiGateway::RestApi",
@@ -293,7 +476,7 @@
         "Name": "import-service-t5-dev | Validate request body and querystring parameters"
       }
     },
-    "ApiGatewayDeployment1703010029692": {
+    "ApiGatewayDeployment1703097585945": {
       "Type": "AWS::ApiGateway::Deployment",
       "Properties": {
         "RestApiId": {
@@ -355,10 +538,19 @@
     "ImportProductFilesLambdaFunctionQualifiedArn": {
       "Description": "Current Lambda function version",
       "Value": {
-        "Ref": "ImportProductFilesLambdaVersionmKcZMniPlspmY3mtmlzvWAnqbmrC5ZITmxLhediY"
+        "Ref": "ImportProductFilesLambdaVersionekMfiydHCDHUcjkN8MJ3pLyU7bFRGKfBOcsDKD7UiQY"
       },
       "Export": {
         "Name": "sls-import-service-t5-dev-ImportProductFilesLambdaFunctionQualifiedArn"
+      }
+    },
+    "ImportFileParserLambdaFunctionQualifiedArn": {
+      "Description": "Current Lambda function version",
+      "Value": {
+        "Ref": "ImportFileParserLambdaVersionilFUXBUHSjVvZNp89tagSZfuWZpW1qRutJWGH5EME"
+      },
+      "Export": {
+        "Name": "sls-import-service-t5-dev-ImportFileParserLambdaFunctionQualifiedArn"
       }
     },
     "ServiceEndpoint": {

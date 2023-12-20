@@ -29,3 +29,13 @@ functions:
             parameters:
               querystrings:
                 name: true
+                
+  importFileParser:
+    handler: functions/importFileParser.handler
+    events:
+    - s3:
+        bucket: import-service-t5
+        event: s3:ObjectCreated:*
+        rules:
+          - prefix: uploaded/
+        existing: true
