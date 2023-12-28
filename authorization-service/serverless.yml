@@ -1,0 +1,22 @@
+service: authorization-service
+
+frameworkVersion: "3"
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  stage: dev
+  region: us-east-2
+
+functions:
+  basicAuthorizer :
+    handler: functions/basicAuthorizer.handler  
+    environment:
+      GITHUB_CREDENTIALS: "{yours_github_account_login}=TEST_PASSWORD"
+    events:
+      - http:
+          path: import
+          method: ANY
+          cors: true
+
+                
