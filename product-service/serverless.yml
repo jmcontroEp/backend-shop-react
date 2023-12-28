@@ -19,16 +19,23 @@ provider:
         - dynamodb:UpdateItem
         - dynamodb:DeleteItem
         - sqs:SendMessage
+        - sqs:ReceiveMessage
+        - sqs:DeleteMessage
+        - sqs:GetQueueAttributes
+        - sns:Publish
       Resource:
         - "Fn::GetAtt": [Product, Arn]
         - "Fn::GetAtt": [Stock, Arn]
-        - "Fn::GetAtt": [catalogItemsQueue, Arn] 
+        - "Fn::GetAtt": [catalogItemsQueue, Arn]
+        - !Ref createProductTopic
 
   environment:
     PRODUCT_TABLE:
       Ref: Product
     STOCK_TABLE:
       Ref: Stock
+    SNS_TOPIC_ARN:
+      Ref: createProductTopic
 
 functions:  
   getProductsList:
@@ -59,7 +66,7 @@ functions:
           arn:
             Fn::GetAtt: [catalogItemsQueue, Arn] 
           batchSize: 5
-          
+
 resources:
   Resources:
     Product:
@@ -88,8 +95,22 @@ resources:
         ProvisionedThroughput:
           ReadCapacityUnits: 5
           WriteCapacityUnits: 5
-    
+
     catalogItemsQueue:
       Type: AWS::SQS::Queue
       Properties:
-        QueueName: catalogItemsQueue  
+        QueueName: catalogItemsQueue
+
+    createProductTopic:
+      Type: AWS::SNS::Topic
+      Properties:
+        DisplayName: Create Product Topic
+        TopicName: createProductTopic
+
+    createProductEmailSubscription:
+      Type: AWS::SNS::Subscription
+      Properties:
+        Protocol: email
+        TopicArn:
+          Ref: createProductTopic
+        Endpoint: josemiguel_contro@epam.com  
