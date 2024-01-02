@@ -1,0 +1,41 @@
+service: import-service-t5
+
+frameworkVersion: "3"
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  stage: dev
+  region: us-east-2
+
+  iamRoleStatements:
+    - Effect: Allow
+      Action: "s3:ListBucket"
+      Resource:
+        - "arn:aws:s3:::import-service-t5"
+    - Effect: Allow
+      Action: "s3:*"
+      Resource:
+        - "arn:aws:s3:::import-service-t5/*"
+
+functions:
+  importProductFiles:
+    handler: functions/importProductFiles.handler
+    events:
+      - http:
+          path: import
+          method: get
+          request:
+            parameters:
+              querystrings:
+                name: true
+                
+  importFileParser:
+    handler: functions/importFileParser.handler
+    events:
+    - s3:
+        bucket: import-service-t5
+        event: s3:ObjectCreated:*
+        rules:
+          - prefix: uploaded/
+        existing: true
