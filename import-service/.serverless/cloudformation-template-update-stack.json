@@ -189,7 +189,7 @@
           "S3Bucket": {
             "Ref": "ServerlessDeploymentBucket"
           },
-          "S3Key": "serverless/import-service-t5/dev/1703783356804-2023-12-28T17:09:16.804Z/import-service-t5.zip"
+          "S3Key": "serverless/import-service-t5/dev/1704213249968-2024-01-02T16:34:09.968Z/import-service-t5.zip"
         },
         "Handler": "functions/importProductFiles.handler",
         "Runtime": "nodejs18.x",
@@ -214,7 +214,7 @@
           "S3Bucket": {
             "Ref": "ServerlessDeploymentBucket"
           },
-          "S3Key": "serverless/import-service-t5/dev/1703783356804-2023-12-28T17:09:16.804Z/import-service-t5.zip"
+          "S3Key": "serverless/import-service-t5/dev/1704213249968-2024-01-02T16:34:09.968Z/import-service-t5.zip"
         },
         "Handler": "functions/importFileParser.handler",
         "Runtime": "nodejs18.x",
@@ -376,7 +376,7 @@
           "S3Bucket": {
             "Ref": "ServerlessDeploymentBucket"
           },
-          "S3Key": "serverless/import-service-t5/dev/1703783356804-2023-12-28T17:09:16.804Z/custom-resources.zip"
+          "S3Key": "serverless/import-service-t5/dev/1704213249968-2024-01-02T16:34:09.968Z/custom-resources.zip"
         },
         "FunctionName": "import-service-t5-dev-custom-resource-existing-s3",
         "Handler": "s3/handler.handler",
@@ -483,7 +483,7 @@
         "Name": "import-service-t5-dev | Validate request body and querystring parameters"
       }
     },
-    "ApiGatewayDeployment1703783352756": {
+    "ApiGatewayDeployment1704213245645": {
       "Type": "AWS::ApiGateway::Deployment",
       "Properties": {
         "RestApiId": {
