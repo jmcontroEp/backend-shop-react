@@ -2,6 +2,9 @@ service: authorization-service
 
 frameworkVersion: "3"
 
+plugins:
+  - serverless-dotenv-plugin
+
 provider:
   name: aws
   runtime: nodejs18.x
@@ -10,13 +13,10 @@ provider:
 
 functions:
   basicAuthorizer :
-    handler: functions/basicAuthorizer.handler  
-    environment:
-      GITHUB_CREDENTIALS: "{yours_github_account_login}=TEST_PASSWORD"
+    handler: functions/basicAuthorizer.handler
     events:
       - http:
-          path: import
+          path: authorizer
           method: ANY
-          cors: true
 
                 
