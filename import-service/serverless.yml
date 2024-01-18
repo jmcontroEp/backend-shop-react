@@ -17,6 +17,10 @@ provider:
       Action: "s3:*"
       Resource:
         - "arn:aws:s3:::import-service-t5/*"
+    - Effect: Allow
+      Action: "sqs:SendMessage"
+      Resource:
+        - "arn:aws:sqs:us-east-2:776115479264:catalogItemsQueue"
 
 functions:
   importProductFiles:
@@ -25,6 +29,8 @@ functions:
       - http:
           path: import
           method: get
+          authorizer:
+            arn: arn:aws:lambda:us-east-2:776115479264:function:authorization-service-dev-basicAuthorizer
           request:
             parameters:
               querystrings:

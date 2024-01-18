@@ -4,7 +4,6 @@ const AWS = require("aws-sdk");
 const db = new AWS.DynamoDB.DocumentClient();
 
 const productTable = process.env.PRODUCT_TABLE;
-const stockTable = process.env.STOCK_TABLE;
 
 module.exports.handler = async (event) => {
   const productId = event.pathParameters.productId;
