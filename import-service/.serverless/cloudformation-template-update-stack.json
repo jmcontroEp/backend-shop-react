@@ -189,7 +189,7 @@
           "S3Bucket": {
             "Ref": "ServerlessDeploymentBucket"
           },
-          "S3Key": "serverless/import-service-t5/dev/1703783356804-2023-12-28T17:09:16.804Z/import-service-t5.zip"
+          "S3Key": "serverless/import-service-t5/dev/1705427196545-2024-01-16T17:46:36.545Z/import-service-t5.zip"
         },
         "Handler": "functions/importProductFiles.handler",
         "Runtime": "nodejs18.x",
@@ -214,7 +214,7 @@
           "S3Bucket": {
             "Ref": "ServerlessDeploymentBucket"
           },
-          "S3Key": "serverless/import-service-t5/dev/1703783356804-2023-12-28T17:09:16.804Z/import-service-t5.zip"
+          "S3Key": "serverless/import-service-t5/dev/1705427196545-2024-01-16T17:46:36.545Z/import-service-t5.zip"
         },
         "Handler": "functions/importFileParser.handler",
         "Runtime": "nodejs18.x",
@@ -376,7 +376,7 @@
           "S3Bucket": {
             "Ref": "ServerlessDeploymentBucket"
           },
-          "S3Key": "serverless/import-service-t5/dev/1703783356804-2023-12-28T17:09:16.804Z/custom-resources.zip"
+          "S3Key": "serverless/import-service-t5/dev/1705427196545-2024-01-16T17:46:36.545Z/custom-resources.zip"
         },
         "FunctionName": "import-service-t5-dev-custom-resource-existing-s3",
         "Handler": "s3/handler.handler",
@@ -435,7 +435,10 @@
           "Ref": "ApiGatewayRestApi"
         },
         "ApiKeyRequired": false,
-        "AuthorizationType": "NONE",
+        "AuthorizationType": "CUSTOM",
+        "AuthorizerId": {
+          "Ref": "BasicAuthorizerApiGatewayAuthorizer"
+        },
         "Integration": {
           "IntegrationHttpMethod": "POST",
           "Type": "AWS_PROXY",
@@ -469,7 +472,7 @@
         }
       },
       "DependsOn": [
-        "ImportProductFilesLambdaPermissionApiGateway"
+        "BasicAuthorizerApiGatewayAuthorizer"
       ]
     },
     "ApiGatewayImportservicet5RequestValidator": {
@@ -483,7 +486,37 @@
         "Name": "import-service-t5-dev | Validate request body and querystring parameters"
       }
     },
-    "ApiGatewayDeployment1703783352756": {
+    "BasicAuthorizerApiGatewayAuthorizer": {
+      "Type": "AWS::ApiGateway::Authorizer",
+      "Properties": {
+        "AuthorizerResultTtlInSeconds": 300,
+        "IdentitySource": "method.request.header.Authorization",
+        "Name": "basicAuthorizer",
+        "RestApiId": {
+          "Ref": "ApiGatewayRestApi"
+        },
+        "AuthorizerUri": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition"
+              },
+              ":apigateway:",
+              {
+                "Ref": "AWS::Region"
+              },
+              ":lambda:path/2015-03-31/functions/",
+              "arn:aws:lambda:us-east-2:776115479264:function:authorization-service-dev-basicAuthorizer",
+              "/invocations"
+            ]
+          ]
+        },
+        "Type": "TOKEN"
+      }
+    },
+    "ApiGatewayDeployment1705427189972": {
       "Type": "AWS::ApiGateway::Deployment",
       "Properties": {
         "RestApiId": {
@@ -504,6 +537,38 @@
             "Arn"
           ]
         },
+        "Action": "lambda:InvokeFunction",
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition"
+              },
+              ":execute-api:",
+              {
+                "Ref": "AWS::Region"
+              },
+              ":",
+              {
+                "Ref": "AWS::AccountId"
+              },
+              ":",
+              {
+                "Ref": "ApiGatewayRestApi"
+              },
+              "/*/*"
+            ]
+          ]
+        }
+      }
+    },
+    "BasicAuthorizerLambdaPermissionApiGateway": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "FunctionName": "arn:aws:lambda:us-east-2:776115479264:function:authorization-service-dev-basicAuthorizer",
         "Action": "lambda:InvokeFunction",
         "Principal": "apigateway.amazonaws.com",
         "SourceArn": {
